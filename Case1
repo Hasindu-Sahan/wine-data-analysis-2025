@@ -1,0 +1,114 @@
+#Import libraries
+import pandas as pd
+# List of raw CSV URLs from GitHub (all in correct format)
+file_paths = [
+    "https://raw.githubusercontent.com/Hasindu-Sahan/wine-data-analysis-2025/main/Australia_Wine_Stats.csv",
+    "https://raw.githubusercontent.com/Hasindu-Sahan/wine-data-analysis-2025/main/Chile_Wine_Stats.csv",
+    "https://raw.githubusercontent.com/Hasindu-Sahan/wine-data-analysis-2025/main/France_Wine_Stats.csv",
+    "https://raw.githubusercontent.com/Hasindu-Sahan/wine-data-analysis-2025/main/Italy_Wine_Stats.csv",
+    "https://raw.githubusercontent.com/Hasindu-Sahan/wine-data-analysis-2025/main/New%20Zealand_Wine_Stats.csv",
+    "https://raw.githubusercontent.com/Hasindu-Sahan/wine-data-analysis-2025/main/Portugal_Wine_Stats.csv",
+    "https://raw.githubusercontent.com/Hasindu-Sahan/wine-data-analysis-2025/main/Spain_Wine_Stats.csv",
+    "https://raw.githubusercontent.com/Hasindu-Sahan/wine-data-analysis-2025/main/USA_Wine_Stats.csv"
+]
+
+# Load all CSVs into a list
+dfs = [pd.read_csv(path) for path in file_paths]
+
+# Concatenate into a single DataFrame
+wine_df = pd.concat(dfs, ignore_index=True)
+
+# Preview the DataFrame
+wine_df.head()
+# Check column names and types
+wine_df.info()
+# Check column names and types
+wine_df.info()
+# Check for missing values in each column
+print("\nMissing values per column:")
+print(wine_df.isnull().sum())
+
+# Remove rows with any missing values
+wine_df_cleaned = wine_df.dropna()
+
+# Print the shape of the cleaned DataFrame
+print(f"DataFrame shape after dropping missing values: {wine_df_cleaned.shape}")
+
+# Check if there are any remaining missing values
+print("\nMissing values per column after handling:")
+print(wine_df_cleaned.isnull().sum())
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# List of relevant numeric columns
+numeric_cols = ['Rating', 'Number of Ratings', 'Price', 'Alcohol content']
+
+# Plot boxplots to visually inspect outliers
+plt.figure(figsize=(16, 8))
+for i, col in enumerate(numeric_cols, 1):
+    plt.subplot(2, 2, i)
+    sns.boxplot(x=wine_df[col])
+    plt.title(f"Boxplot of {col}")
+plt.tight_layout()
+plt.show()
+
+# Function to remove outliers using IQR method
+def remove_outliers_iqr(df, col):
+    Q1 = df[col].quantile(0.25)
+    Q3 = df[col].quantile(0.75)
+    IQR = Q3 - Q1
+    lower = Q1 - 1.5 * IQR
+    upper = Q3 + 1.5 * IQR
+    cleaned_df = df[(df[col] >= lower) & (df[col] <= upper)]
+    print(f"{col}: Removed {df.shape[0] - cleaned_df.shape[0]} outliers")
+    return cleaned_df
+
+# Apply for selected numeric columns
+for col in ['Price', 'Number of Ratings', 'Alcohol content']:
+    wine_df = remove_outliers_iqr(wine_df, col)
+
+# Final shape after outlier removal
+print("\nFinal shape after removing outliers:", wine_df.shape)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Plot boxplots to visually inspect the distributions after removing outliers
+plt.figure(figsize=(16, 8))
+for i, col in enumerate(numeric_cols, 1):
+    plt.subplot(2, 2, i)
+    sns.boxplot(x=wine_df[col])
+    plt.title(f"Boxplot of {col} (After Outlier Removal)")
+plt.tight_layout()
+plt.show()
+
+# Extract 'Country' from the 'Region' column (assuming the format "Country / Region / Area")
+wine_df['Country'] = wine_df['Region'].apply(lambda x: x.split(' / ')[0])
+
+# Preview the DataFrame after adding the "Country" column
+wine_df[['Region', 'Country']].head()
+
+# Extract 'Country_region' from the 'Region' column
+wine_df['Country_region'] = wine_df['Region'].apply(lambda x: ' / '.join(x.split(' / ')[1:]))
+
+# Preview the DataFrame after adding the "Country_region" column
+wine_df[['Region', 'Country_region']].head()
+
+# Convert the "Food pairings" column to a list format (if it's a string)
+wine_df['Food pairings'] = wine_df['Food pairings'].apply(lambda x: eval(x) if isinstance(x, str) else [])
+
+# Check the conversion of "Food pairings" column
+wine_df[['Food pairings']].head()
+
+# List of possible food pairings
+food_list = ['Beef', 'Lamb', 'Poultry', 'Pasta', 'Cheese', 'Pork', 'Fish', 'Vegetarian', 'Spicy', 
+             'Salmon', 'Chicken', 'Steak', 'Barbecue', 'Mushroom', 'Tofu', 'Duck', 'Turkey', 
+             'Veal', 'Pizza', 'Seafood', 'Dessert']
+
+# Create a column for each food pairing
+for food in food_list:
+    wine_df[food] = wine_df['Food pairings'].apply(lambda x: food in x)
+
+# Preview the DataFrame after adding the new columns
+wine_df.head()
