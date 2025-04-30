@@ -83,6 +83,32 @@ for i, col in enumerate(numeric_cols, 1):
 plt.tight_layout()
 plt.show()
 
+# Extract 'Country' from the 'Region' column (assuming the format "Country / Region / Area")
+wine_df['Country'] = wine_df['Region'].apply(lambda x: x.split(' / ')[0])
 
+# Preview the DataFrame after adding the "Country" column
+wine_df[['Region', 'Country']].head()
 
+# Extract 'Country_region' from the 'Region' column
+wine_df['Country_region'] = wine_df['Region'].apply(lambda x: ' / '.join(x.split(' / ')[1:]))
 
+# Preview the DataFrame after adding the "Country_region" column
+wine_df[['Region', 'Country_region']].head()
+
+# Convert the "Food pairings" column to a list format (if it's a string)
+wine_df['Food pairings'] = wine_df['Food pairings'].apply(lambda x: eval(x) if isinstance(x, str) else [])
+
+# Check the conversion of "Food pairings" column
+wine_df[['Food pairings']].head()
+
+# List of possible food pairings
+food_list = ['Beef', 'Lamb', 'Poultry', 'Pasta', 'Cheese', 'Pork', 'Fish', 'Vegetarian', 'Spicy', 
+             'Salmon', 'Chicken', 'Steak', 'Barbecue', 'Mushroom', 'Tofu', 'Duck', 'Turkey', 
+             'Veal', 'Pizza', 'Seafood', 'Dessert']
+
+# Create a column for each food pairing
+for food in food_list:
+    wine_df[food] = wine_df['Food pairings'].apply(lambda x: food in x)
+
+# Preview the DataFrame after adding the new columns
+wine_df.head()
