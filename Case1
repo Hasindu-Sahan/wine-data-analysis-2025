@@ -1,4 +1,7 @@
 ##Task 02 Data Preparation
+
+%matplotlib notebook
+
 #Import libraries
 import pandas as pd
 # List of raw CSV URLs from GitHub (all in correct format)
