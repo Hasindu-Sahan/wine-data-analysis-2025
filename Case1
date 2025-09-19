@@ -253,7 +253,8 @@ import pandas as pd
 import plotly.express as px
 
 # Load cleaned dataset
-wine_df = pd.read_csv('cleaned_wine_data.csv')
+wine_df = pd.read_csv("https://raw.githubusercontent.com/Hasindu-Sahan/wine-data-analysis-2025/main/cleaned_wine_data.csv"
+)
 
 # Initialize the Dash app
 app = dash.Dash(__name__)
